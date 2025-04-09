@@ -1,0 +1,21 @@
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <!-- <ForEach goal="{goal_list}"> <!-- Iterate over multiple goals -->
+      <Sequence name="NavigationSequence">
+        <ComputePathToPose goal="{goal}" path="{path}" planner_id="SmacHybrid"/>
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+        <!-- <ConditionNode name="GoalReached" condition="CheckGoalReached"/> <!-- Ensure goal was reached before moving on -->
+      </Sequence>
+      
+      <!--<RecoveryNode number_of_retries="2" name="RecoverySequence"> <!-- Retry twice if navigation fails -->
+        <!--<ReactiveFallback name="RecoveryFallback">
+          <SequenceWithMemory name="RecoveryActions">
+            <BackUp backup_dist="0.5"/>
+            <ConditionNode name="RecoverySuccessCheck" condition="CheckRecoverySuccess"/> <!-- Stops if recovery is successful -->
+            <!-- <BackUp backup_dist="0.5"/>
+          </SequenceWithMemory>
+        </ReactiveFallback>
+      </RecoveryNode> -->
+    <!-- </ForEach> -->
+  </BehaviorTree>
+</root>

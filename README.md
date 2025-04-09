@@ -1,1 +1,1 @@
-# CSTAR-ROS-WS
+# CSTAR - Concrete Sounding Tool Automated Robot

@@ -1,0 +1,298 @@
+<?xml version="1.0"?>
+<sdf version="1.8" xmlns:xacro="https://ros.org/wiki/xacro">
+
+    <!-- Inertial properties -->
+    <xacro:macro name="cylinder_inertia" params="m r h">
+        <inertial>
+            <pose>0 0 0 ${pi/2} 0 0</pose>
+            <mass>${m}</mass>
+            <inertia>
+                <ixx>${(m/12) * (3*r*r + h*h)}</ixx>
+                <ixy>0.0</ixy> 
+                <ixz>0.0</ixz>
+                <iyy>${(m/12) * (3*r*r + h*h)}</iyy>
+                <iyz>0.0</iyz>
+                <izz>${(m/2) * (r*r)}</izz>
+            </inertia>
+        </inertial>
+    </xacro:macro>
+
+    <xacro:macro name="sphere_inertia" params="m r">
+        <inertial>
+            <mass>${m}</mass>
+            <inertia>
+                <ixx>${(2/5) * m * (r*r)}</ixx>
+                <ixy>0.0</ixy> 
+                <ixz>0.0</ixz>
+                <iyy>${(2/5) * m * (r*r)}</iyy>
+                <iyz>0.0</iyz> 
+                <izz>${(2/5) * m * (r*r)}</izz>
+            </inertia>
+        </inertial>
+    </xacro:macro>
+
+<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+  <!-- wheels -->
+  <left_joint>drivewhl_l_joint</left_joint>
+  <right_joint>drivewhl_r_joint</right_joint>
+
+  <!-- kinematics -->
+  <wheel_separation>0.4</wheel_separation>
+  <wheel_radius>0.03176</wheel_radius>
+
+  <!-- limits -->
+  <max_linear_acceleration>0.1</max_linear_acceleration>
+
+  <!-- input -->
+  <topic>/cmd_vel</topic>
+
+  <!-- output -->
+  <odom_topic>/odom</odom_topic>
+  <tf_topic>/tf</tf_topic>
+
+  <frame_id>odom</frame_id>
+  <child_frame_id>base_link</child_frame_id>
+</plugin>
+
+<plugin
+  filename="gz-sim-joint-state-publisher-system"
+  name="gz::sim::systems::JointStatePublisher">
+  <topic>joint_states</topic>
+</plugin>
+
+    <model name="cstar_bot" canonical_link='base_link'>
+
+    <!-- Define robot constants -->
+    <xacro:property name="base_radius" value="0.2412365"/>
+    <xacro:property name="base_height" value="0.2286"/>
+    <xacro:property name="wheel_radius" value="0.03176"/>
+    <xacro:property name="wheel_width" value="0.0254"/>
+    <xacro:property name="wheel_ygap" value="-0.0635"/>
+    <xacro:property name="wheel_zoff" value="0.0254"/>
+    <xacro:property name="wheel_xoff" value="0.0"/>
+    <xacro:property name="front_caster_xoff" value="0.1905"/>
+    <xacro:property name="front_caster_yoff" value="0.0"/>
+    <xacro:property name="back_caster_xoff" value="-0.1905"/>
+    <xacro:property name="back_caster_yoff" value="0.0"/>
+    <xacro:property name="laser_radius" value="0.02667"/>
+    <xacro:property name="laser_height" value="0.0254"/>
+
+<!-- Robot Base -->
+<link name='base_link'>
+    <must_be_base_link>true</must_be_base_link>
+    <visual name="base_link_visual">
+      <geometry>
+        <cylinder>
+         <radius>${base_radius}</radius> 
+         <length>${base_height}</length>
+        </cylinder> 
+      </geometry>
+      <material>
+        <ambient>0 1 1 1</ambient>
+        <diffuse>0 1 1 1</diffuse>
+      </material>
+    </visual>
+</link>
+
+<link name='base_link_dummy'>
+    <pose relative_to="dummy_joint"/>
+    <collision name="base_link_collision">
+      <geometry>
+        <cylinder>
+         <radius>${base_radius}</radius> 
+         <length>${base_height}</length>
+        </cylinder> 
+      </geometry>
+    </collision>
+    
+    <xacro:cylinder_inertia m="0.5" r="${base_radius}" h="${base_height}"/>
+</link>
+
+<joint name='dummy_joint' type='fixed'>
+    <parent>base_link</parent>
+    <child>base_link_dummy</child>
+    <pose relative_to="base_link">0 0 0 0 0 0</pose>
+</joint>
+
+<!-- Robot Footprint -->
+<link name='base_footprint'>
+    <pose relative_to="base_joint"/>
+    <xacro:cylinder_inertia m="0" r="0" h="0"/>
+</link>
+
+<joint name='base_joint' type='fixed'>
+    <parent>base_link</parent>
+    <child>base_footprint</child>
+    <pose relative_to="base_link">0.0 0.0 ${-(wheel_zoff + base_height/2 + wheel_radius)} 0 0 0</pose>
+</joint>
+
+<!-- Wheels -->
+<xacro:macro name="wheel" params="prefix x_reflect y_reflect">
+  <link name="${prefix}_link">
+    <pose relative_to="${prefix}_joint"/>
+
+    <visual name="${prefix}_link_visual">
+        <pose relative_to="${prefix}_link">0 0 0 ${pi/2} 0 0</pose>
+        <geometry>
+          <cylinder> 
+            <radius>${wheel_radius}</radius> 
+            <length>${wheel_width}</length>
+          </cylinder>
+        </geometry>
+        <material>
+            <ambient>0.3 0.3 0.3 1.0</ambient>
+            <diffuse>0.7 0.7 0.7 1.0</diffuse>
+        </material>
+    </visual>
+
+      <collision name="${prefix}_link_collision">
+        <pose relative_to="${prefix}_link">0 0 0 ${pi/2} 0 0</pose>
+        <geometry>
+          <cylinder> 
+            <radius>${wheel_radius}</radius>
+            <length>${wheel_width}</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <xacro:cylinder_inertia m="0.5" r="${wheel_radius}" h="${wheel_width}"/>
+  </link>
+
+  <joint name="${prefix}_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>${prefix}_link</child>
+      <pose relative_to="base_link">${x_reflect * wheel_xoff} ${y_reflect * (base_radius + wheel_ygap)} ${-(wheel_zoff + base_height/2)} 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+        </limit>
+      </axis>
+  </joint>
+</xacro:macro>
+
+<xacro:wheel prefix="drivewhl_l" x_reflect="-1" y_reflect="1"/>
+<xacro:wheel prefix="drivewhl_r" x_reflect="-1" y_reflect="-1"/>
+  
+<!-- Front Caster Wheel -->
+<link name="front_caster">
+    <pose relative_to="front_caster_joint"/>
+
+    <visual name="front_caster_visual">
+      <geometry>
+        <sphere>
+         <radius>${wheel_radius}</radius>
+        </sphere>
+      </geometry>
+      <material>
+        <ambient>0 1 1 1</ambient>
+        <diffuse>0 1 1 1</diffuse>
+      </material>
+    </visual>
+
+    <collision name="front_caster_collision">
+      <geometry>
+        <sphere> 
+            <radius>${wheel_radius}</radius>
+        </sphere>
+      </geometry>
+      <surface><friction><ode>
+        <mu>0.001</mu>
+        <mu2>0.001</mu2>
+      </ode></friction></surface>
+    </collision>
+
+    <xacro:sphere_inertia m="0.5" r="${wheel_radius}"/>
+</link>
+
+<joint name="front_caster_joint" type="fixed">
+    <parent>base_link</parent>
+    <child>front_caster</child>
+    <pose relative_to="base_link">${front_caster_xoff} ${front_caster_yoff} ${-(wheel_zoff + base_height/2)} 0 0 0</pose>
+</joint>
+
+<!-- Back Caster Wheel -->
+<link name="back_caster">
+    <pose relative_to="back_caster_joint"/>
+
+    <visual name="back_caster_visual">
+      <geometry>
+        <sphere>
+         <radius>${wheel_radius}</radius>
+        </sphere>
+      </geometry>
+      <material>
+        <ambient>0 1 1 1</ambient>
+        <diffuse>0 1 1 1</diffuse>
+      </material>
+    </visual>
+
+    <collision name="back_caster_collision">
+      <geometry>
+        <sphere> 
+            <radius>${wheel_radius}</radius>
+        </sphere>
+      </geometry>
+      <surface><friction><ode>
+        <mu>0.001</mu>
+        <mu2>0.001</mu2>
+      </ode></friction></surface>
+    </collision>
+
+    <xacro:sphere_inertia m="0.5" r="${wheel_radius}"/>
+</link>
+
+<joint name="back_caster_joint" type="fixed">
+    <parent>base_link</parent>
+    <child>back_caster</child>
+    <pose relative_to="base_link">${back_caster_xoff} ${back_caster_yoff} ${-(wheel_zoff + base_height/2)} 0 0 0</pose>
+</joint>
+
+<!-- LiDAR sensor -->
+<link name="lidar_link">
+    <pose relative_to="lidar_joint"/>
+
+    <visual name="lidar_link_visual">
+      <geometry>
+        <cylinder>
+            <radius>${laser_radius}</radius>
+            <length>${laser_height}</length>
+        </cylinder>
+      </geometry>
+      <material>
+        <ambient>0.4 0.4 0.4 1.0</ambient>
+        <diffuse>0.6 0.6 0.6 1.0</diffuse>
+      </material>
+    </visual>
+
+    <collision name="lidar_link_collision">
+      <geometry>
+        <cylinder>
+            <radius>${laser_radius}</radius>
+            <length>${laser_height}</length>
+        </cylinder>
+      </geometry>
+    </collision>
+
+    <xacro:cylinder_inertia m="0.5" r="${laser_radius}" h="${laser_height}"/>
+</link>
+
+<joint name="lidar_joint" type="revolute">
+    <parent>base_link</parent>
+    <child>lidar_link</child>
+    <pose relative_to="base_link">0 0 ${base_height/2 + laser_height/2} 0 0 0</pose>
+    <axis>
+        <xyz>0 0 -1</xyz>
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+        </limit>
+    </axis>
+</joint>
+
+</model>
+</sdf>

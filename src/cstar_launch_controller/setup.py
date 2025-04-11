@@ -18,7 +18,7 @@ setup(
        
     install_requires=['setuptools','nav2_bringup'],
     zip_safe=True,
-    maintainer='cstar-capstone',
+    maintainer='Carina Vale',
     maintainer_email='vale.c@northeastern.edu',
     description='TODO: Package description',
     license='TODO: License declaration',

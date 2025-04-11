@@ -3,14 +3,9 @@ import time
 import RPi.GPIO as GPIO
 import rclpy
 from rclpy.node import Node
-# from std_msgs.msg import Float32MultiArray
-# from geometry_msgs.msg import Odometry
 from nav_msgs.msg import Odometry
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped, Quaternion
-# from geometry_msgs.msg import PoseWithCovariance
-# from geometry_msgs.msg import TwistWithCovarian
-# import tf_transformations
 
 WHEEL_DIAMETER = 0.072  
 PULSES_PER_REV = 537.7  
@@ -23,53 +18,6 @@ LEFT_B = 16
 RIGHT_A = 2
 RIGHT_B = 3
 
-# class Encoder:
-#     def __init__(self, pin_a: int, pin_b: int):
-#         self.pin_a = pin_a
-#         self.pin_b = pin_b
-#         self.position = 0
-#         self.direction = 0  # 1 for clockwise, -1 for counterclockwise
-#         GPIO.setmode(GPIO.BCM)
-#         GPIO.setup(self.pin_a, GPIO.IN)
-#         GPIO.setup(self.pin_b, GPIO.IN)
-        
-#         self.last_a_state = GPIO.input(self.pin_a)
-
-#         self.x = 0.0
-#         self.y = 0.0
-#         self.theta = 0.0
-#         self.last_time = time.time()
-
-#     def update_position(self):
-#         # Read the state of the encoder channel A
-#         current_a_state = GPIO.input(self.pin_a)
-#         current_b_state = GPIO.input(self.pin_b)
-
-#         # Check if the A channel changed
-#         if current_a_state != self.last_a_state:
-#             # If the A channel leads the B channel, it's a clockwise rotation
-#             if current_b_state != current_a_state:
-#                 self.position += 1
-#                 self.direction = 1  # Clockwise
-#             else:
-#                 self.position -= 1
-#                 self.direction = -1  # Counterclockwise
-
-#         self.last_a_state = current_a_state  # Update the last state for next comparison
-
-#     def get_position(self):
-#         return self.position
-
-#     def get_direction(self):
-#         return self.direction
-
-#     def reset_position(self):
-#         self.position = 0
-
-#     def get_odometry(self):
-#         return self.x, self.y, self.theta
-
-
 class EncoderOdometryNode(Node):
     def __init__(self):
         super().__init__('odometry_publisher')
@@ -77,7 +25,6 @@ class EncoderOdometryNode(Node):
         self.odom_pub = self.create_publisher(Odometry, 'odom', 10)       
         self.odom_broadcaster = TransformBroadcaster(self)
         
-        #
         self.x = 0.0
         self.y = 0.0
         self.th = 0.0
@@ -88,21 +35,21 @@ class EncoderOdometryNode(Node):
         self.last_right_ticks = 0
 
         #to run without GPIO, uncomment
-        self.vx = 0.1
-        self.vy = -0.1
-        self.vth = 0.1
+        #self.vx = 0.1
+        #self.vy = -0.1
+        #self.vth = 0.1
 
         self.current_time = self.get_clock().now()
         self.last_time = self.get_clock().now()
        
         # to run without GPIO, comment out GPIO
-        # GPIO.setmode(GPIO.BCM)
-        # GPIO.setup(LEFT_A, GPIO.IN)
-        # GPIO.setup(LEFT_B, GPIO.IN)
-        # GPIO.setup(RIGHT_A, GPIO.IN)
-        # GPIO.setup(RIGHT_B, GPIO.IN)
-        # GPIO.add_event_detect(LEFT_A, GPIO.RISING, callback=self.increment_left_ticks) # check these are the right rising
-        # GPIO.add_event_detect(RIGHT_A, GPIO.RISING, callback=self.increment_left_ticks)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(LEFT_A, GPIO.IN)
+        GPIO.setup(LEFT_B, GPIO.IN)
+        GPIO.setup(RIGHT_A, GPIO.IN)
+        GPIO.setup(RIGHT_B, GPIO.IN)
+        GPIO.add_event_detect(LEFT_A, GPIO.RISING, callback=self.increment_left_ticks) # check these are the right rising
+        GPIO.add_event_detect(RIGHT_A, GPIO.RISING, callback=self.increment_left_ticks)
 
         self.timer = self.create_timer(0.1, self.timer_callback)  # 10 Hz
 
@@ -131,18 +78,18 @@ class EncoderOdometryNode(Node):
         self.current_time = self.get_clock().now()
 
         # to run without GPIO, comment out
-        #vx, vth = self.calculate_velocities()
+        vx, vth = self.calculate_velocities()
 
         # compute odometry given velocities
         dt = (self.current_time - self.last_time).nanoseconds / 1e9
 
-        # delta_x = vx * cos(self.th) * dt
-        # delta_y = vx * sin(self.th) * dt
-        # delta_th = vth * dt
+        delta_x = vx * cos(self.th) * dt
+        delta_y = vx * sin(self.th) * dt
+        delta_th = vth * dt
         # to run without GPIO, switch with
-        delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * dt
-        delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * dt
-        delta_th = self.vth * dt
+        #delta_x = (self.vx * cos(self.th) - self.vy * sin(self.th)) * dt
+        #delta_y = (self.vx * sin(self.th) + self.vy * cos(self.th)) * dt
+        #delta_th = self.vth * dt
 
         self.x += delta_x
         self.y += delta_y
@@ -180,12 +127,12 @@ class EncoderOdometryNode(Node):
         odom.pose.pose.orientation = odom_quat
                 
         # set velocity
-        # odom.twist.twist.linear.x = vx
-        # odom.twist.twist.angular.z = vth
+        odom.twist.twist.linear.x = vx
+        odom.twist.twist.angular.z = vth
         # to run without GPIO, switch
-        odom.twist.twist.linear.x = self.vx
-        odom.twist.twist.linear.y = self.vy
-        odom.twist.twist.angular.z = self.vth
+        #odom.twist.twist.linear.x = self.vx
+        #odom.twist.twist.linear.y = self.vy
+        #odom.twist.twist.angular.z = self.vth
         
         # publish message
         self.odom_pub.publish(odom)

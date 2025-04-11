@@ -4,7 +4,7 @@
   <name>encoder_ros</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="vale.c@northeastern.edu">cstar-capstone</maintainer>
+  <maintainer email="vale.c@northeastern.edu">Carina Vale</maintainer>
   <license>TODO: License declaration</license>
 
   <build_depend>nav_msgs</build_depend>

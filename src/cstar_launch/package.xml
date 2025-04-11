@@ -4,7 +4,7 @@
   <name>cstar_launch</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="vale.c@northeastern.edu">cstar-capstone</maintainer>
+  <maintainer email="vale.c@northeastern.edu">Carina Vale</maintainer>
   <license>TODO: License declaration</license>
   <depend>rclpy</depend>
   <depend>nav2_bringup</depend>

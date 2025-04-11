@@ -1,3 +1,6 @@
+# controller_node, attempted to integrate Bluetooth control program into node for cstar_launch_controller launch
+# Code by Carina Vale
+
 import RPi.GPIO as GPIO
 from pydualsense import pydualsense
 import rclpy

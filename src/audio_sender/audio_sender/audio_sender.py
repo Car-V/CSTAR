@@ -1,5 +1,6 @@
 # audio_sender node for collecting mic samples and positions from pose_listener
 # Code by Carina Vale
+# For configuration, update self.websocket_url to the IP holding the host_program.py, on the same network
 
 import os
 import time
@@ -22,7 +23,7 @@ class AudioSender(Node):
         self.position_before = None
         self.create_subscription(PoseStamped, '/slam_toolbox/pose', self.pose_callback, 10)
   	#self.create_subscription(Odometry, 'odom', self.odom_callback, 10)
-        self.websocket_url = "ws://192.168.7.86:8764" #"ws://127.0.0.1:8764" #"ws://192.168.7.29:8764" #
+        self.websocket_url = "ws://192.168.7.86:8764" #"ws://127.0.0.1:8764" #"ws://192.168.7.29:8764"
         self.websocket = None
         self.timer = self.create_timer(2.0, self.record_and_send_audio) # triggers every 5 sec
 
@@ -85,12 +86,14 @@ class AudioSender(Node):
             self.loop.run_until_complete(self.websocket.close())
         super().destroy_node()
 
+
 def main(args=None):
     rclpy.init()
     node = AudioSender()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

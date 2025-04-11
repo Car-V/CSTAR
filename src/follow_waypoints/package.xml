@@ -4,7 +4,7 @@
   <name>follow_waypoints</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="vale.c@northeastern.edu">cstar-capstone</maintainer>
+  <maintainer email="vale.c@northeastern.edu">Carina Vale</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>

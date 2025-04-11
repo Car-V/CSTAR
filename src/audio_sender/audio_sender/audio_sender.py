@@ -1,5 +1,4 @@
 # audio_sender node for collecting mic samples and positions from pose_listener
-# Code by Carina Vale
 # For configuration, update self.websocket_url to the IP holding the host_program.py, on the same network
 
 import os

@@ -39,7 +39,6 @@ def generate_launch_description():
         #         )
         #     ]
         # ),
-        # Static transform publisher 2
         TimerAction(
             period=2.0,
             actions=[

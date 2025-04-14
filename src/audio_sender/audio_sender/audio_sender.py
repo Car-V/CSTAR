@@ -22,7 +22,7 @@ class AudioSender(Node):
         self.position_before = None
         self.create_subscription(PoseStamped, '/slam_toolbox/pose', self.pose_callback, 10)
   	#self.create_subscription(Odometry, 'odom', self.odom_callback, 10)
-        self.websocket_url = "ws://192.168.7.86:8764" #"ws://127.0.0.1:8764" #"ws://192.168.7.29:8764"
+        self.websocket_url = "ws://127.0.0.1:8764" #localhost
         self.websocket = None
         self.timer = self.create_timer(2.0, self.record_and_send_audio) # triggers every 5 sec
 

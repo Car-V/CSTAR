@@ -1,3 +1,6 @@
+# Program written by Carina Vale
+# Audio processing by Kayla Myklebust
+
 import asyncio
 import websockets
 from datetime import datetime
@@ -74,15 +77,7 @@ def audio_manager(filepath):
         if ((freq[i] >= lowcut) and (freq[i-1] <= lowcut)):
             low_index = i
         if (freq[i] > lowcut and freq[i] <= highcut and freq[i+1] >=highcut):
-            high_index = i
-                         
-    # # Loop through the specified FFT range
-    # print(single_normalized_fft)
-    # for i in range(low_index, high_index + 1):  # Include high_index
-    #     if (type(single_normalized_fft[i]) == list):
-    #         sum_mag += (single_normalized_fft[i][0] + single_normalized_fft[i][1])/2  # Sum the FFT magnitudes average
-    #     else:
-    #         sum_mag += single_normalized_fft[i]
+            high_index = i                         
 
     for i in range(low_index, high_index + 1):  # Include high_index
         if (type(single_normalized_fft[i]) == list):

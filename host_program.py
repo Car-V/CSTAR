@@ -1,5 +1,7 @@
 # Program written by Carina Vale
 # Audio processing by Kayla Myklebust
+# Configure file with server IP and port
+# Update audio filepath to where this file is located
 
 import asyncio
 import websockets
@@ -32,7 +34,7 @@ map_ax.grid(True)
 recolor_task = None
  
 colormap = plt.cm.coolwarm
-norm = mcolors.Normalize(vmin=global_min, vmax=global_max) # fill these with the actual float min/max?
+norm = mcolors.Normalize(vmin=global_min, vmax=global_max) 
 cbar = map_fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=colormap), ax=map_ax, orientation='vertical')
 cbar.set_label("Delamination Severity", rotation=270, labelpad=15)
  
@@ -176,7 +178,7 @@ async def save_audio(websocket):
                 await asyncio.sleep(0)
                 print(f"Float generated from audio data: {value:.2f}")
             previous_position = current_position  # Update for the next packet
-            value = audio_manager("C:/Users/cathe/Desktop/received.wav")#"C:/Users/alsha/Downloads/received.wav") # UPDATE TO PROPER PATH
+            value = audio_manager("C:/Users/cathe/Desktop/received.wav") # UPDATE TO PROPER PATH
     except websockets.exceptions.ConnectionClosed:
         print("Client disconnected")
     except Exception as e:

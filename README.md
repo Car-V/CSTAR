@@ -1,4 +1,4 @@
-# CSTAR - Concrete Sounding Tool Automated Robot
+# C-STAR - Concrete Sounding Tool Automated Robot
 
 Concrete Sounding Tool Automated Robot (C-STAR) is a project aimed at automating the process of locating concrete delamination in parking garages. Concrete delamination causes concrete to break and results in damage ranging from potholes to structural collapse, posing dangers and costs. Civil and structural engineers are tasked with finding delamination spots through various nondestructive testing methods. One technique is to drag a metal chain across the garage and mark spots where hollow sounds are heard. This method is effective but involves manual labor, excessive time, and human error. As there is no automated testing method available on the market, C-STAR aims to fill a notable void in making these outdated techniques more efficient and accessible. 
 
